@@ -1,0 +1,53 @@
+import requests
+
+from bs4 import BeautifulSoup
+
+import pandas as pd
+
+url="https://top40weekly.com/"
+
+response=requests.get(url)
+
+page_contents=response.text
+
+with open('webpage.html','w') as f:
+    f.write(page_contents)
+
+def complete():
+    doc=BeautifulSoup(page_contents,'html.parser')
+    div=doc.find_all('div', {'class': "x-text"})
+    a=div[-2].text
+    a=a.split("\n")
+    return(a)
+
+def song_singer(a):
+    SONG_SINGER=[]
+    for i in a:
+        b=i.split("by")
+        SONG_SINGER.append(b)
+    SONG_SINGER=SONG_SINGER[:-1]
+    return(SONG_SINGER)
+
+def song(SONG_SINGER):
+    SONG_name=[]
+    SINGER_name=[]
+    RANK=[]
+    for i in SONG_SINGER:
+        SONG_name.append(i[0][3:])
+    for i in SONG_SINGER:
+        c=i[1]
+        SINGER_name.append(c)
+    for i in SONG_SINGER:
+        c=i[0][:3]
+        RANK.append(c)
+    return(SONG_name,SINGER_name,RANK)
+
+a=complete()
+SONG_SINGER=song_singer(a)
+SONG_name,SINGER_name,RANK=song(SONG_SINGER)
+
+songs_df=pd.DataFrame(song_dict)
+
+# CREATE CSV FILE:
+
+songs_df.to_csv('songs.csv', index=None)
